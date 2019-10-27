@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iitu.kz.kindergardenadmin.model.Role;
 import com.iitu.kz.kindergardenadmin.model.Staff;
 import com.iitu.kz.kindergardenadmin.util.MethodNotAllowedException;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +21,15 @@ public class StaffService {
     RestTemplate eurekaRestTemplate;
     ObjectMapper obj = new ObjectMapper();
 
+    @HystrixCommand(
+            fallbackMethod = "addStaffFallback",
+            threadPoolKey = "getStaffData",
+            threadPoolProperties = {
+                    @HystrixProperty(name="coreSize", value="100"),
+                    @HystrixProperty(name="maximumSize", value="120"),
+                    @HystrixProperty(name="maxQueueSize", value="50"),
+                    @HystrixProperty(name="allowMaximumSizeToDivergeFromCoreSize", value="true"),
+            })
     public void addStaff(Staff staff) throws JsonProcessingException {
         eurekaRestTemplate.postForObject(
                 "http://kindergarden-staff/rest/staff",
@@ -25,6 +37,15 @@ public class StaffService {
                 Staff.class);
     }
 
+    @HystrixCommand(
+            fallbackMethod = "getRolesFallback",
+            threadPoolKey = "getStaffData",
+            threadPoolProperties = {
+                    @HystrixProperty(name="coreSize", value="100"),
+                    @HystrixProperty(name="maximumSize", value="120"),
+                    @HystrixProperty(name="maxQueueSize", value="50"),
+                    @HystrixProperty(name="allowMaximumSizeToDivergeFromCoreSize", value="true"),
+            })
     public List<Role> getRoles() {
 
         List<Role> groupsList = eurekaRestTemplate.getForObject(
@@ -38,6 +59,19 @@ public class StaffService {
         return groupsList;
     }
 
+    public List<Role> getRolesFallback() {
+        return new ArrayList<>();
+    }
+
+    @HystrixCommand(
+            fallbackMethod = "getStaffFallback",
+            threadPoolKey = "getStaffData",
+            threadPoolProperties = {
+                    @HystrixProperty(name="coreSize", value="100"),
+                    @HystrixProperty(name="maximumSize", value="120"),
+                    @HystrixProperty(name="maxQueueSize", value="50"),
+                    @HystrixProperty(name="allowMaximumSizeToDivergeFromCoreSize", value="true"),
+            })
     public List<Staff> getStaff() {
 
         List<Staff> childrenList = eurekaRestTemplate.getForObject(
@@ -49,5 +83,9 @@ public class StaffService {
         }
 
         return childrenList;
+    }
+
+    public List<Staff> getStaffFallback() {
+        return new ArrayList<>();
     }
 }

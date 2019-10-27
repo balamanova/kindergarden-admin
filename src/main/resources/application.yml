@@ -5,3 +5,8 @@ spring:
     application:
         name: kindergarden-admin
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: hystrix.stream
