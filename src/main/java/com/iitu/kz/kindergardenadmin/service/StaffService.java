@@ -2,12 +2,17 @@ package com.iitu.kz.kindergardenadmin.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iitu.kz.kindergardenadmin.model.Children;
 import com.iitu.kz.kindergardenadmin.model.Role;
 import com.iitu.kz.kindergardenadmin.model.Staff;
 import com.iitu.kz.kindergardenadmin.util.MethodNotAllowedException;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,9 +36,18 @@ public class StaffService {
                     @HystrixProperty(name="allowMaximumSizeToDivergeFromCoreSize", value="true"),
             })
     public void addStaff(Staff staff) throws JsonProcessingException {
-        eurekaRestTemplate.postForObject(
+
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(obj.writeValueAsString(staff), headers);
+
+        eurekaRestTemplate.exchange(
                 "http://kindergarden-staff/rest/staff",
-                obj.writeValueAsString(staff),
+                HttpMethod.POST,
+                entity,
                 Staff.class);
     }
 
@@ -48,9 +62,18 @@ public class StaffService {
             })
     public List<Role> getRoles() {
 
-        List<Role> groupsList = eurekaRestTemplate.getForObject(
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<Role> groupsList = eurekaRestTemplate.exchange(
                 "http://kindergarden-staff/rest/roles",
-                List.class);
+                HttpMethod.GET,
+                entity,
+                List.class).getBody();
 
         if(groupsList==null) {
             throw new MethodNotAllowedException("Internet Error");
@@ -74,9 +97,18 @@ public class StaffService {
             })
     public List<Staff> getStaff() {
 
-        List<Staff> childrenList = eurekaRestTemplate.getForObject(
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<Staff> childrenList = eurekaRestTemplate.exchange(
                 "http://kindergarden-staff/rest/roles/ck1ffihx20cd7010352ozry3q",
-                List.class);
+                HttpMethod.GET,
+                entity,
+                List.class).getBody();
 
         if(childrenList==null) {
             throw new MethodNotAllowedException("Login or password invalid");

@@ -5,7 +5,11 @@ import com.iitu.kz.kindergardenadmin.model.Group;
 import com.iitu.kz.kindergardenadmin.util.MethodNotAllowedException;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,9 +33,17 @@ public class ChildrenService {
             }
     )
     public void addChildren(Children children) {
+
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<Children> entity = new HttpEntity<>(children, headers);
+
         eurekaRestTemplate.postForObject(
                 "http://kindergarden-children/rest/children",
-                children,
+                entity,
                 Children.class);
     }
 
@@ -46,13 +58,21 @@ public class ChildrenService {
             }
     )
     public List<Group> getGroups() {
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
 
-        List<Group> groupsList = eurekaRestTemplate.getForObject(
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<Group> groupsList = eurekaRestTemplate.exchange(
                 "http://kindergarden-children/rest/groups",
-                List.class);
+                HttpMethod.GET,
+                entity,
+                List.class).getBody();
 
         if(groupsList==null) {
-            throw new MethodNotAllowedException("Internet Erro");
+            throw new MethodNotAllowedException("Internet Error");
         }
 
         return groupsList;
@@ -79,9 +99,18 @@ public class ChildrenService {
     )
     public List<Children> getChildren() {
 
-        List<Children> childrenList = eurekaRestTemplate.getForObject(
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<Children> childrenList = eurekaRestTemplate.exchange(
                 "http://kindergarden-children/rest/children",
-                List.class);
+                HttpMethod.GET,
+                entity,
+                List.class).getBody();
 
         if(childrenList==null) {
             throw new MethodNotAllowedException("Login or password invalid");
@@ -111,9 +140,18 @@ public class ChildrenService {
             }
     )
     public List<Children> getListChildren(String groupId) {
-        List<Children> childrenList = eurekaRestTemplate.getForObject(
+        String apiCredentials = "rest-client:p@ssword";
+        String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        List<Children> childrenList = eurekaRestTemplate.exchange(
                 "http://kindergarden-children/rest/children/group/" + groupId,
-                List.class);
+                HttpMethod.GET,
+                entity,
+                List.class).getBody();
 
         if(childrenList==null) {
             throw new MethodNotAllowedException("Login or password invalid");
