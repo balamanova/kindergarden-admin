@@ -10,3 +10,9 @@ management:
         web:
             exposure:
                 include: hystrix.stream
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://eureka-service:8761/eureka//
+        healthcheck:
+            enabled: true

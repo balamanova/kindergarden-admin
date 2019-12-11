@@ -2,7 +2,6 @@ package com.iitu.kz.kindergardenadmin.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iitu.kz.kindergardenadmin.model.Children;
 import com.iitu.kz.kindergardenadmin.model.Role;
 import com.iitu.kz.kindergardenadmin.model.Staff;
 import com.iitu.kz.kindergardenadmin.util.MethodNotAllowedException;
@@ -97,7 +96,7 @@ public class StaffService {
             })
     public List<Staff> getStaff() {
 
-        String apiCredentials = "rest-client:p@ssword";
+        String apiCredentials = "admin:admin";
         String base64Credentials = new String(Base64.encodeBase64(apiCredentials.getBytes()));
 
         HttpHeaders headers = new HttpHeaders();

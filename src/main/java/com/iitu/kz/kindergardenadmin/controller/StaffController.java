@@ -18,7 +18,8 @@ public class StaffController {
     StaffService staffService;
 
     @GetMapping
-    public List<Staff> getChildrens(){
+    public List<Staff> getStaff(){
+
         return staffService.getStaff();
     }
 
